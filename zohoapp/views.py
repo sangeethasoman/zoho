@@ -8921,8 +8921,13 @@ def view_bills(request):
     user = request.user
     bills = PurchaseBills.objects.filter(user=user).order_by('-id')
     company = company_details.objects.get(user=user)
+    pickup_records = []
+    for bill in bills:
+        record = {"bill_date":str(bill.bill_date),"bill_no":str(bill.bill_no),"customer_name":bill.customer_name,"vendor_name":bill.vendor_name,"status":bill.status,"total":bill.total,"id":bill.id}
+        pickup_records.append(record)
+
     context = {
-        'bills': bills,
+        'bills': pickup_records,
         'company': company,
     }
 
@@ -10890,3 +10895,9 @@ def vendor_credit_vendor(request):
         vndr.save()
 
         return HttpResponse({"message":"success"})
+    
+def delete_purchase_bill(request,id):
+    Bills=PurchaseBills.objects.get(id=id)
+    Bills.delete()
+    return redirect('view_bills')
+    

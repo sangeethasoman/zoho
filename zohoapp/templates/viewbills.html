@@ -34,18 +34,30 @@
 
   <h1 class="p-3">All Purchase Bills</h1>
   <div class="row ">
+    
 
     <div class="col-md-4 py-3 d-flex align-items-center">
       <input type="text" class="form-control text-dark bg-white" id="search" placeholder="search...">
+      
+      <a class="btn text-center px-4 pt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+      role="button" ><i class="fa fa-filter"></i>
+      </a>
+      <div class="dropdown-menu ">
+          <a class="dropdown-item">All</a>
+          <a class="dropdown-item">Bill No:</a>
+          <a class="dropdown-item">Vendor A-Z</a>
+          <a class="dropdown-item">Customer Z-A</a>
+      </div>
     </div>
+
     
-   
+
     <div class="col-md-6 py-2 d-flex justify-content-end">
       <select id="selectOption" class="btn btn-outline-warning dropdown-toggle "
               aria-label=".form-select-lg example"  name="type">
-              <option value="1" selected>All Bills</option>
-              <option value="2">Customer A-Z</option>
-              <option value="3">Vendor A-Z</option>
+              <option value="" selected>All</option>
+              <option value="Save">Save</option>
+              <option value="Draft">Draft</option>
       </select>
   </div>
   <div class="col-md-2 py-3">
@@ -68,25 +80,16 @@
         <tr>
           <th>DATE</th>
           <th>BILL NUMBER</th>
-          <th>ORDER NUMBER</th>
           <th>CUSTOMER NAME</th>
           <th>VENDOR NAME</th>
           <th>STATUS</th>
           <th>AMOUNT</th>
+          <th>BALANCE</th>
+          <th>ACTION</th>
         </tr>
       </thead>
       <tbody id="myTable">
-        {% for bill in bills %}
-        <tr class="clickable-row" data-href="{% url 'bill_view' bill.id %}">
-          <td>{{bill.bill_date}}</td>
-          <td>{{bill.bill_no}}</td>
-          <td>{{bill.order_number}}</td>
-          <td>{{bill.customer_name}}</td>
-          <td>Mr.{{bill.vendor_name}}</td>
-          <td>{{bill.status}}</td>
-          <td>{{bill.total}}</td>
-        </tr>
-        {% endfor %}
+       
       </tbody>
 
 
@@ -139,5 +142,37 @@
   });
 </script>
 
+<script> 
+    $(document).ready(function ($) {
+        
+        TableDataBind()
+    });
+
+    function TableDataBind(){
+      debugger
+    var bills = '{{bills}}'; 
+    var str = bills.replace(new RegExp("&"+"#"+"x27;", "g"), '"');
+    var jsonObj = $.parseJSON(str);
+
+    $("#myTable").empty();
+         $.each(jsonObj, function (index, data) {
+            var newRow = $("<tr>");
+            newRow.append("<td>"+data.bill_date+"</td>");
+            newRow.append("<td>"+data.bill_no+"</td>");
+            newRow.append("<td>"+data.customer_name+"</td>");
+            newRow.append("<td>"+data.vendor_name+"</td>");
+            newRow.append("<td>"+data.status+"</td>");
+            newRow.append("<td>"+data.total+"</td>");
+            newRow.append("<td></td>");
+            newRow.append(`<td><a href='/delete_purchase_bill/${data.id}'><i class='fas fa-trash text-danger text-center'></i></a></td>`);
+
+            $("#myTable").append(newRow);
+         })
+
+
+
+    }
+
+</script>
 
 {% endblock %}
