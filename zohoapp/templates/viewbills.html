@@ -27,6 +27,16 @@
     align-items: center;
     gap: 10px; /* Adjust the spacing between the input and button */
 }
+a{
+        list-style: none;
+        color: azure;
+    }
+     a:hover{
+        color: rgb(218, 164, 48);
+     }
+     ::-webkit-scrollbar {
+        width: 5px; 
+    }
 </style>
 <!-- <div class="fixed-top  " style="top: 7rem; margin-left: 20rem;"> -->
 
@@ -40,25 +50,27 @@
       <input type="text" class="form-control text-dark bg-white" id="search" placeholder="search...">
       
       <a class="btn text-center px-4 pt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-      role="button" ><i class="fa fa-filter"></i>
+      role="button" ><i class="fa fa-sort"></i>
       </a>
       <div class="dropdown-menu ">
-          <a class="dropdown-item">All</a>
-          <a class="dropdown-item">Bill No:</a>
-          <a class="dropdown-item">Vendor A-Z</a>
-          <a class="dropdown-item">Customer Z-A</a>
+          <a class="dropdown-item dropdown-sort">All</a>
+          <a class="dropdown-item dropdown-sort">Bill No:</a>
+          <a class="dropdown-item dropdown-sort">Vendor A-Z</a>
+          <a class="dropdown-item dropdown-sort">Customer A-Z</a>
       </div>
     </div>
 
     
 
     <div class="col-md-6 py-2 d-flex justify-content-end">
-      <select id="selectOption" class="btn btn-outline-warning dropdown-toggle "
-              aria-label=".form-select-lg example"  name="type">
-              <option value="" selected>All</option>
-              <option value="Save">Save</option>
-              <option value="Draft">Draft</option>
-      </select>
+      <a class="btn text-center px-4 pt-2 btn-outline-warning" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+      role="button" ><i class="fa fa-filter"></i>
+      </a>
+      <div class="dropdown-menu ">
+          <a class="dropdown-item dropdown-filter">All</a>
+          <a class="dropdown-item dropdown-filter">Save</a>
+          <a class="dropdown-item dropdown-filter">Draft</a> 
+      </div>
   </div>
   <div class="col-md-2 py-3">
     <a href="{% url 'new_bill' %}" class="btn btn-outline-warning py-2" style="width: 120px;" ><i class="fa-solid fa-plus "> New</i></a>
@@ -75,7 +87,7 @@
   </div>
 
   <div class="col-sm-12 mt-4" >
-    <table id="estimates-table" class="table  text-white text-center">
+    <table id="estimates-table" class="table  text-white text-center ">
       <thead>
         <tr>
           <th>DATE</th>
@@ -143,26 +155,21 @@
 </script>
 
 <script> 
-    $(document).ready(function ($) {
-        
-        TableDataBind()
+    $(document).ready(function ($) { 
+        TableDataBind(getData());
     });
 
-    function TableDataBind(){
-      debugger
-    var bills = '{{bills}}'; 
-    var str = bills.replace(new RegExp("&"+"#"+"x27;", "g"), '"');
-    var jsonObj = $.parseJSON(str);
+    function TableDataBind(jsonObj){ 
 
     $("#myTable").empty();
          $.each(jsonObj, function (index, data) {
             var newRow = $("<tr>");
-            newRow.append("<td>"+data.bill_date+"</td>");
-            newRow.append("<td>"+data.bill_no+"</td>");
-            newRow.append("<td>"+data.customer_name+"</td>");
-            newRow.append("<td>"+data.vendor_name+"</td>");
-            newRow.append("<td>"+data.status+"</td>");
-            newRow.append("<td>"+data.total+"</td>");
+            newRow.append("<td><a href='/bill_view/" + data.id + "'>"+data.bill_date+"</a></td>");
+            newRow.append("<td><a href='/bill_view/" + data.id + "'>"+data.bill_no+"</a></td>");
+            newRow.append("<td><a href='/bill_view/" + data.id + "'>"+data.customer_name+"</a></td>");
+            newRow.append("<td><a href='/bill_view/" + data.id + "'>"+data.vendor_name+"</a></td>");
+            newRow.append("<td><a href='/bill_view/" + data.id + "'>"+data.status+"</a></td>");
+            newRow.append("<td><a href='/bill_view/" + data.id + "'>"+data.total+"</a></td>");
             newRow.append("<td></td>");
             newRow.append(`<td><a href='/delete_purchase_bill/${data.id}'><i class='fas fa-trash text-danger text-center'></i></a></td>`);
 
@@ -172,6 +179,56 @@
 
 
     }
+
+    $(".dropdown-sort").click(function() { 
+      
+        var selectedItem = $(this).text(); 
+        
+        if(selectedItem == 'Bill No:'){
+          sortResults('bill_no');
+        }
+        else if (selectedItem == 'Vendor A-Z'){
+          sortResults('vendor_name');
+        } 
+        else if (selectedItem == 'Customer A-Z'){
+          sortResults('customer_name');
+        }
+        else{
+          TableDataBind(getData());
+        }
+    });
+
+    $(".dropdown-filter").click(function() { 
+        var selectedItem = $(this).text(); 
+        
+        if(selectedItem == 'Save'){
+          filterResults('Save');
+        }
+        else if (selectedItem == 'Draft'){
+          filterResults('Draft');
+        }  
+        else{
+          TableDataBind(getData());
+        }
+    });
+
+    function sortResults(prop) { 
+      var jsonObj = getData().sort(function(a, b) { 
+            return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0); 
+        }); 
+
+      TableDataBind(jsonObj)
+}
+
+function getData(){
+      var bills = '{{bills}}';  
+      return $.parseJSON(bills.replace(new RegExp("&"+"#"+"x27;", "g"), '"'));
+}
+
+function filterResults(prop) { 
+      var jsonObj = getData().filter(e => e.status == prop);
+      TableDataBind(jsonObj)
+}
 
 </script>
 

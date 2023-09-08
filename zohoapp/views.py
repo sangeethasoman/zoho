@@ -4193,15 +4193,21 @@ def recurring_bill(request):
 
     company = company_details.objects.get(user = request.user)
     recur = recurring_bills.objects.filter(user = request.user.id).values()
+    pickup_records = []
+
     for r in recur:
         vn = r['vendor_name'].split()[1:]
         r['vend_name'] = " ".join(vn)
         cn = r['customer_name'].split()[2:]
         r['cust_name'] = " ".join(cn)
+        record = {"start_date":str(r['start_date']),"profile_name":r['profile_name'],"vend_name":str(r['vend_name']),"cust_name":r['cust_name'],"grand_total":r['grand_total'],"id":r['id']}
+        pickup_records.append(record)
+
+
 
     context = {
                 'company' : company,
-                'recur_bill' : recur
+                'recur_bill' : pickup_records
             }
     return render(request,'recurring_bills.html',context)
 
