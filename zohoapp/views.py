@@ -1341,6 +1341,7 @@ def createestimate(request):
         if x == y:
 
           item = request.POST.getlist('item[]')
+          HSN = request.POST.getlist('HSN[]')
           quantity = request.POST.getlist('quantity[]')
           rate = request.POST.getlist('rate[]')
           discount = request.POST.getlist('discount[]')
@@ -1349,6 +1350,7 @@ def createestimate(request):
         
         else:
           itemm = request.POST.getlist('itemm[]')
+          HSNN = request.POST.getlist('HSNN[]')
           quantityy = request.POST.getlist('quantityy[]')
           ratee = request.POST.getlist('ratee[]')
           discountt = request.POST.getlist('discountt[]')
@@ -1378,19 +1380,19 @@ def createestimate(request):
 
         if x == y:
 
-           if len(item) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
+           if len(item) ==  len(HSN) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
              mapped = zip(item, quantity, rate, discount, tax, amount)
              mapped = list(mapped)
              for element in mapped:
                 created = EstimateItems.objects.get_or_create(
-                    estimate=estimate, item_name=element[0], quantity=element[1], rate=element[2], discount=element[3], tax_percentage=element[4], amount=element[5])
+                    estimate=estimate, item_name=element[0], HSN=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
         else:
-            if len(itemm) == len(quantityy) == len(ratee) == len(discountt) == len(taxx) == len(amountt):
+            if len(itemm) == len(HSNN) == len(quantityy) == len(ratee) == len(discountt) == len(taxx) == len(amountt):
              mapped = zip(itemm, quantityy, ratee, discountt, taxx, amountt )
              mapped = list(mapped)
              for element in mapped:
                 created = EstimateItems.objects.get_or_create(
-                    estimate=estimate, item_name=element[0], quantity=element[1], rate=element[2], discount=element[3], tax_percentage=element[4], amount=element[5])
+                    estimate=estimate, item_name=element[0], HSN=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
 
     return redirect('newestimate')
 
@@ -3983,6 +3985,7 @@ def new_recur(request):
         profile=request.POST.get('name')
         onumber=request.POST.get('order')
         repeat=request.POST.get('every')
+        bills=request.POST.get('bills')
         sdate=request.POST.get('start')
         edate=request.POST.get('end')
         pay=request.POST.get('terms')
@@ -4006,6 +4009,7 @@ def new_recur(request):
             name=profile,
             order_num=onumber,
             every=repeat,
+            bills=bills,
             start=sdate,
             end=edate,
             terms=pay,
@@ -4100,6 +4104,7 @@ def editrecurpage(request,id):
         edit.name=request.POST['name']
         edit.order_num=request.POST['order']
         edit.every=request.POST['every']
+        edit.bills=request.POST['bills']
         edit.start=request.POST['start']
         edit.end=request.POST['end']
         edit.terms=request.POST['terms']
@@ -4329,33 +4334,44 @@ def recur_profiledesc(request):
 @login_required(login_url='login')
 def add_recurring_bills(request):
 
-    company = company_details.objects.get(user = request.user)
-    vendor = vendor_table.objects.filter(user = request.user)
-    acnt_name = Chart_of_Account.objects.filter(user = request.user)
-    acnt_type = Chart_of_Account.objects.filter(user = request.user).values('account_type').distinct()
-    cust = customer.objects.filter(user = request.user)
-    item = AddItem.objects.filter(user = request.user)
-    payments = payment_terms.objects.filter(user = request.user)
+    company = company_details.objects.get(user=request.user)
+    vendor = vendor_table.objects.filter(user=request.user)
+    acnt_name = Chart_of_Account.objects.filter(user=request.user)
+    acnt_type = Chart_of_Account.objects.filter(user=request.user).values('account_type').distinct()
+    cust = customer.objects.filter(user=request.user)
+    item = AddItem.objects.filter(user=request.user)
+    payments = payment_terms.objects.filter(user=request.user)
     units = Unit.objects.all()
-    sales=Sales.objects.all()
-    purchase=Purchase.objects.all()
+    sales = Sales.objects.all()
+    purchase = Purchase.objects.all()
     sales_type = set(Sales.objects.values_list('Account_type', flat=True))
     purchase_type = set(Purchase.objects.values_list('Account_type', flat=True))
+    last_id = recurring_bills.objects.filter(user_id=request.user.id).order_by('-id').values('id').first()
+
+    if request.user.is_authenticated:
+        last_id = last_id['id']
+        next_no = last_id + 1
+    else:
+        next_no = 1
+
     context = {
-                'company' : company,
-                'vendor' : vendor,
-                'account': acnt_name,
-                'account_type' : acnt_type,
-                'customer' : cust,
-                'item' : item,
-                'payments' :payments,
-                'units' :units,
-                'sales' :sales,
-                'purchase':purchase,
-                'sales_type':sales_type,
-                'purchase_type':purchase_type,
-            }
-    return render(request,'add_recurring_bills.html',context)
+        'company': company,
+        'vendor': vendor,
+        'account': acnt_name,
+        'account_type': acnt_type,
+        'customer': cust,
+        'item': item,
+        'payments': payments,
+        'units': units,
+        'sales': sales,
+        'purchase': purchase,
+        'sales_type': sales_type,
+        'purchase_type': purchase_type,
+        'b_no': next_no,
+    }
+
+    return render(request, 'add_recurring_bills.html', context)
+
 
 @login_required(login_url='login')
 def create_recurring_bills(request):
@@ -10906,4 +10922,36 @@ def delete_purchase_bill(request,id):
     Bills=PurchaseBills.objects.get(id=id)
     Bills.delete()
     return redirect('view_bills')
+
+#-------------------------------------------------------------------------------------------------#
+@login_required(login_url='login')
+def add_repeat(request):
+    
+    company = company_details.objects.get(user = request.user)
+
+    if request.method=='POST':
+
+        repeats = request.POST.get('repeats')
+        
+        
+        u = User.objects.get(id = request.user.id)
+
+        ad_repeat = repeat(repeat=repeats,  user = u)
+        ad_repeat.save()
+
+        return HttpResponse({"message": "success"})
+    
+        
+@login_required(login_url='login')
+def repeat_dropdown(request):
+
+    user = User.objects.get(id=request.user.id)
+
+    options = {}
+    option_objects = repeat.objects.filter(user = user)
+    for option in option_objects:
+        options[option.id] = [option.repeat]
+
+    return JsonResponse(options)
+
     

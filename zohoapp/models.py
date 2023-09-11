@@ -522,6 +522,7 @@ class recurring_bills(models.Model):
     note = models.CharField(max_length=255,null=True,blank=True)
     document=models.FileField(upload_to='doc/recurring_bills',null=True,blank=True)
     comments = models.CharField(max_length=255,null=True,blank=True)
+    bills=models.CharField(max_length=100,null=True,blank=True)
     
 
 class recurring_bills_items (models.Model):
@@ -1131,5 +1132,10 @@ class transactions(models.Model):
     type=models.CharField(max_length=220,default='', null=True, blank=True)
     adjtype=models.CharField(max_length=220,default='', null=True, blank=True)
     adjacname=models.CharField(max_length=220,default='', null=True, blank=True)
+
+class repeat(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    repeat = models.CharField(max_length=100,null=True,blank=True)
+      
     
     

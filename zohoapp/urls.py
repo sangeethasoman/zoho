@@ -512,6 +512,8 @@ urlpatterns = [
     
 
     path('delete_purchase_bill/<int:id>',views.delete_purchase_bill,name='delete_purchase_bill'),
+    path('add_repeat',views.add_repeat,name='add_repeat'),
+    path('repeat_dropdown',views.repeat_dropdown,name='repeat_dropdown'),
     
     
 ]

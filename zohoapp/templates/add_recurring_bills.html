@@ -103,18 +103,22 @@
       {% csrf_token %}
       <div class="row">
         <div class="col-md-3">
-          <label style="color: rgb(190, 88, 88);">Vendor Name *</label>
+            <label style="color: rgb(190, 88, 88);">Vendor Name *</label>
         </div>
-        <div class="col-md-6">
-          <select name="vendor" id="vendor" class="form-control text-dark bg-light" >
-            <option value="" class="text-dark bg-light"></option>
-            {% for v in vendor %}
-            <option value="{{v.id}} {{ v.first_name }} {{ v.last_name }}" class="text-dark bg-light">{{ v.first_name }} {{ v.last_name }}</option>
-            {% endfor %}
-          </select>
-          <a href="" data-toggle="modal" data-target="#newvendor">+ Add New Vendor</a>
+        <div class="col-md-6 d-flex">
+            <select name="vendor" id="vendor" class="form-control text-dark bg-light" style="flex: 1;">
+                <option value="" class="text-dark bg-light"></option>
+                {% for v in vendor %}
+                <option value="{{v.id}} {{ v.first_name }} {{ v.last_name }}" class="text-dark bg-light">{{ v.first_name }} {{ v.last_name }}</option>
+                {% endfor %}
+            </select>
+            <a href="" class="p-2 ml-2" data-toggle="modal" data-target="#newvendor">
+                <i class="fas fa-plus p-2 rounded " style="color: white; background-color: rgb(210, 132, 30); "
+                    data-toggle="tooltip" title="Create Vendor"></i>
+            </a>
         </div>
-      </div>
+    </div>
+    
 
       <div class="row mt-2 d-none" id="email_row">
         <div class="col-md-3">
@@ -211,25 +215,26 @@
 
         <div class="col-md-6">
           <div class="d-flex">
-            <select class="form-control text-dark bg-light"  name="repeat">
-
-                <option selected value="1 Week">Week</option>
-                <option value="2 Weeks">2 Weeks</option>
-                <option value="1 Month">Month</option>
-                <option value="2 Months">2 Months</option>
-                <option value="3 Months">3 Months</option>
-                <option value="6 Months">6 Months</option>
-                <option value="1 Year">Years</option>
-                <option value="2 Years">2 Years</option>
-                <option value="3 Years">3 Years</option>
-                <option value="6 Years">6 Years</option>
-            </select>
+            <select class="form-control text-dark bg-light" id="repeats"  name="repeats"> </select>
+            <a href="" class="p-2 ml-2" data-toggle="modal" data-target="#newrepeat">
+              <i class="fas fa-plus p-2 rounded " style="color: white; background-color: rgb(210, 132, 30); "
+                  data-toggle="tooltip" title="Add Repeat"></i>
+          </a>
+            
           </div>   
         </div>
       </div>
       <br><br>
 
-
+      <div class="row mt-2" >
+        <div class="col-md-3">
+          <div class="col-sm-2"><label for="recur_bills">Recurring Bill#*</label></div>
+        </div>
+       
+          <div class="col-md-6"><input type="text" id="recur_bills" name="recur_bills"
+            class="form-control bg-white text-dark" value="REB-00{{b_no}}">
+        </div>
+    </div>
       <div class="row mt-2" >
           <div class="col-md-3">
             <label for="date1">Starts On</label>
@@ -258,16 +263,17 @@
         <div class="col-md-6">
           <div class="d-flex">
             <select class="form-control text-dark bg-light" id="terms" name="terms">
+              
+              <option value="30">NET 30</option>
+              
+              <option value="60">NET 60</option>
+             
+             
+              <option value="recpt">Due on receipt</option>
               {% for p in payments %}
                 <option selected value="{{p.id}} {{p.Terms}} {{ p.days}}" class="text-dark bg-light">{{p.Terms}}</option>
               {% endfor %}
-              <option selected value="15">NET 15</option>
-              <option value="30">NET 30</option>
-              <option value="45">NET 45</option>
-              <option value="60">NET 60</option>
-              <option value="90">NET 90</option>
-              <option value="">Due end of the month</option>
-              <option value="recpt">Due on receipt</option>
+             
             </select>
 
           </div> 
@@ -285,25 +291,24 @@
           <label for="rvsCharge" class="mx-3 mt-2">This transaction is applicable for Reverse Charge</label>
         </div>
       </div>
-
       <div class="row mt-2">
         <div class="col-md-3">
-          <label style="color: rgb(190, 88, 88);">Customer Name *</label><br>
+            <label style="color: rgb(190, 88, 88);">Customer Name *</label><br>
         </div>
-        <div class="col-md-6">
-          <select name="customer" id="customer" class="form-control text-dark bg-light" >
-            <option value=""></option>
-            {% for c in customer %}
-            <option value="{{c.id}} {{c.customerName}}">{{ c.customerName }}</option>
-            {% endfor %}
-          </select>
-          <a href="" data-toggle="modal" data-target="#newcustomer">+ Add New Customer</a>
-          <input type="hidden" id="cust_state" value="" readonly >
-
-          <input type="hidden" id="company_state" value="{{company.state}}" readonly>
-
+        <div class="col-md-6 d-flex align-items-center">
+            <select name="customer" id="customer" class="form-control text-dark bg-light" style="flex: 1;">
+                <option value=""></option>
+                {% for c in customer %}
+                <option value="{{c.id}} {{c.customerName}}">{{ c.customerName }}</option>
+                {% endfor %}
+            </select>
+            <a href="" class="p-2 ml-2" data-toggle="modal" data-target="#newcustomer">
+                <i class="fas fa-plus p-2 rounded" style="color: white; background-color: rgb(210, 132, 30); "
+                    data-toggle="tooltip" title="Create Customer"></i>
+            </a>
         </div>
-      </div>
+    </div>
+    
 
       <div class="row mt-2 d-none" id="cemail_row">
         <div class="col-md-3">
@@ -340,6 +345,9 @@
                 <th class="text-center text-uppercase">Item Details <br>
                   <a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ add item</a>
                 </th>
+                <th class="text-center text-uppercase">HSN </th>
+                 
+               
                 <th class="text-center text-uppercase">account <br>
                   <a href="" data-toggle="modal" data-target="#newaccount" class="text-capitalize">+ Add Account</a>
 
@@ -364,6 +372,20 @@
                     </select>
                   </div>  
                 </td>
+
+                <td  style="width: 20%;">
+                  <div class="d-flex">
+                    <select name='HSN[]' id="HSN0" class="form-control item text-dark bg-light">
+                      <option value=" " selected disabled>Select HSN</option>
+                      {% for j in HSN %}
+                        <option value="{{i.id}}">{{ j.HSN }} </option>
+                      {% endfor %}
+                    
+                    </select>
+                  </div>  
+                </td>
+
+                
                 
                 <td  style="width: 20%;">
                   <div class="d-flex">
@@ -876,12 +898,12 @@
                   <div class="col-md-6 mt-2">
                     <div class="d-flex">
                       <select class="form-control text-dark bg-light" id="v_terms" name="v_terms" required>
-                        <option selected value="15">NET 15</option>
+                       
                         <option value="30">NET 30</option>
-                        <option value="45">NET 45</option>
+                       
                         <option value="60">NET 60</option>
-                        <option value="90">NET 90</option>
-                        <option value="">Due end of the month</option>
+                        
+                        
                         <option value="recpt">Due on receipt</option>
                         {% for p in payments %}
                         <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
@@ -1160,6 +1182,69 @@
           </div>
       </div>  
     </div>  
+
+     <!-- repeat modal -->
+
+
+     <div class="modal fade" id="newrepeat">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+          <div class="modal-header " style="background: rgb(32, 35, 37);">
+              <h3 class="m-3 text-uppercase">Add Repeat</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body" style="background: rgb(32, 35, 37);">
+            <div class="card p-3 m-3">
+              <form action="" method="post" class="needs-validation" novalidate autocomplete="off" id="modalRepeat">
+                <div class="row mt-2">
+                  <div class="col-md-2 mt-2"></div>
+                  <div class="col-md-4 mt-2">
+                    
+                  </div>
+
+                </div>
+
+
+                <div class="row mt-2">
+                  <div class="col-md-2 mt-2">
+                    <center><label for="termname" style="color: rgb(190, 88, 88);">Add Repeat*</label></center>
+                  </div>
+
+                  <div class="col-md-4 mt-2">
+                    <input type="text" class="form-control text-dark bg-light" id="repeats_input" name="repeats_input" required>      
+                  </div>
+
+                 
+
+                </div>
+                
+                <div class="row mt-5">
+                  <div class="col-md-4"></div>
+                  <div class="col-md-4">
+                    <div class="d-flex">
+                      <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"
+                      type="submit" data-dismiss="modal" id="RepeatSave">Save
+                      </button> 
+                      
+
+                      <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" 
+                        data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">Cancel</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-4"></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>  
+    </div>  
+
+    
 
     <!-- payment modal -->
 
@@ -1511,12 +1596,12 @@
                   <div class="col-md-6 mt-2">
                     <div class="d-flex">
                       <select class="form-control text-dark bg-light" id="c_terms" name="c_terms" required>
-                        <option selected value="15">NET 15</option>
+                       
                         <option value="30">NET 30</option>
-                        <option value="45">NET 45</option>
+                        
                         <option value="60">NET 60</option>
-                        <option value="90">NET 90</option>
-                        <option value="">Due end of the month</option>
+                       
+                        
                         <option value="recpt">Due on receipt</option>
                         {% for p in payments %}
                         <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
@@ -1849,6 +1934,15 @@
                   </div>
                   <div class="col-md-6">
                     <input type="text" class="form-control text-dark bg-light" id="item_name" name="item_name" required>
+                  </div>
+                </div>
+
+                <div class="row mt-2">
+                  <div class="col-md-3">
+                    <label for="name" style="color: rgb(190, 88, 88);">HSN</label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control text-dark bg-light" id="HSN" name="HSN" required>
                   </div>
                 </div>
                 <div class="row mt-2">
@@ -3039,6 +3133,67 @@ function reloadCustomer() {
     }
   });
 }
+
+
+//-------- add repeat modal-----------
+
+$(document).on("click","#RepeatSave",function(){
+  $.ajax({
+    
+    type : 'POST',
+    url:"{% url 'add_repeat' %}",
+
+
+    data:{
+      repeats : $("#repeats_input").val(),
+       
+        
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+        
+      },
+    
+      success: function(response) {
+        document.getElementById("modalRepeat").reset();
+        reloadRepeat();
+      },
+  });        
+});
+
+$(document).ready(function(){
+  reloadRepeat()
+});
+
+function reloadRepeat() {
+
+$.ajax({
+  url: "{% url 'repeat_dropdown' %}",
+  type: "GET",
+  dataType: "json",
+  data: $(this).serialize(),
+  csrfmiddlewaretoken: '{{ csrf_token }}',
+
+  success: function(data) {
+    var dropdown = $('#repeats');
+    dropdown.empty();
+    dropdown.append(`
+               <option selected value="Week">Week</option>
+               
+               <option value="Month">Month</option>
+               
+               <option value="Year">Year</option>`); 
+    $.each(data, function(key, value) {
+      debugger
+        dropdown.append('<option value='+value[0]+'>'+value[0]+'</option>'); 
+    });
+  },
+  error: function(xhr, status, error) {
+  console.error(xhr.responseText);
+  }
+});
+}
+
+
+
 
 //--------payment terms modal-----------
 
