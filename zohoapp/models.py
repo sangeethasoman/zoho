@@ -522,7 +522,7 @@ class recurring_bills(models.Model):
     note = models.CharField(max_length=255,null=True,blank=True)
     document=models.FileField(upload_to='doc/recurring_bills',null=True,blank=True)
     comments = models.CharField(max_length=255,null=True,blank=True)
-    bills=models.CharField(max_length=100,null=True,blank=True)
+    bill_no = models.CharField(max_length=100,null=True,blank=True)
     
 
 class recurring_bills_items (models.Model):
@@ -537,6 +537,7 @@ class recurring_bills_items (models.Model):
     tax = models.FloatField(null=True,blank=True)
     discount = models.FloatField(null=True,blank=True)
     amount = models.FloatField(null=True,blank=True)
+    hsn = models.CharField(max_length=100,null=True,blank=True)
     
     
 class Comment(models.Model):

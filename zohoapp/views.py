@@ -1341,7 +1341,7 @@ def createestimate(request):
         if x == y:
 
           item = request.POST.getlist('item[]')
-          HSN = request.POST.getlist('HSN[]')
+          
           quantity = request.POST.getlist('quantity[]')
           rate = request.POST.getlist('rate[]')
           discount = request.POST.getlist('discount[]')
@@ -1350,7 +1350,7 @@ def createestimate(request):
         
         else:
           itemm = request.POST.getlist('itemm[]')
-          HSNN = request.POST.getlist('HSNN[]')
+         
           quantityy = request.POST.getlist('quantityy[]')
           ratee = request.POST.getlist('ratee[]')
           discountt = request.POST.getlist('discountt[]')
@@ -1380,19 +1380,19 @@ def createestimate(request):
 
         if x == y:
 
-           if len(item) ==  len(HSN) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
+           if len(item) == len(quantity) == len(rate) == len(discount) == len(tax) == len(amount):
              mapped = zip(item, quantity, rate, discount, tax, amount)
              mapped = list(mapped)
              for element in mapped:
                 created = EstimateItems.objects.get_or_create(
-                    estimate=estimate, item_name=element[0], HSN=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
+                    estimate=estimate, item_name=element[0],  quantity=element[1], rate=element[2], discount=element[3], tax_percentage=element[4], amount=element[5])
         else:
-            if len(itemm) == len(HSNN) == len(quantityy) == len(ratee) == len(discountt) == len(taxx) == len(amountt):
+            if len(itemm) == len(quantityy) == len(ratee) == len(discountt) == len(taxx) == len(amountt):
              mapped = zip(itemm, quantityy, ratee, discountt, taxx, amountt )
              mapped = list(mapped)
              for element in mapped:
                 created = EstimateItems.objects.get_or_create(
-                    estimate=estimate, item_name=element[0], HSN=element[1], quantity=element[2], rate=element[3], discount=element[4], tax_percentage=element[5], amount=element[6])
+                    estimate=estimate, item_name=element[0],  quantity=element[1], rate=element[2], discount=element[3], tax_percentage=element[4], amount=element[5])
 
     return redirect('newestimate')
 
@@ -3985,7 +3985,7 @@ def new_recur(request):
         profile=request.POST.get('name')
         onumber=request.POST.get('order')
         repeat=request.POST.get('every')
-        bills=request.POST.get('bills')
+       
         sdate=request.POST.get('start')
         edate=request.POST.get('end')
         pay=request.POST.get('terms')
@@ -4009,7 +4009,7 @@ def new_recur(request):
             name=profile,
             order_num=onumber,
             every=repeat,
-            bills=bills,
+           
             start=sdate,
             end=edate,
             terms=pay,
@@ -4104,7 +4104,7 @@ def editrecurpage(request,id):
         edit.name=request.POST['name']
         edit.order_num=request.POST['order']
         edit.every=request.POST['every']
-        edit.bills=request.POST['bills']
+        
         edit.start=request.POST['start']
         edit.end=request.POST['end']
         edit.terms=request.POST['terms']
@@ -4389,11 +4389,12 @@ def create_recurring_bills(request):
         v_gst_no=request.POST.get('gstin_inp')   # haripriya add
         src_supply = request.POST.get('srcofsupply')
         prof = request.POST['prof_name']
-        repeat = request.POST['repeat']
+        repeat = request.POST['repeats']
         start = request.POST.get('start_date')
         end = None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
         pay_term =request.POST['terms']
 
+        hsn = request.POST.getlist('hsn')
         sub_total =request.POST['subtotal']
 
         sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
@@ -4418,7 +4419,7 @@ def create_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u,  )
+                    grand_total=grand_total,note=note,company=company,user = u,hsn = hsn,   )
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4428,6 +4429,7 @@ def create_recurring_bills(request):
             r_bill.save()
 
         items = request.POST.getlist("item[]")
+       
         accounts = request.POST.getlist("account[]")
         quantity = request.POST.getlist("qty[]")
         rate = request.POST.getlist("rate[]")
@@ -5006,7 +5008,7 @@ def recurbills_item(request):
         cost_price=request.POST.get('cost_price')
         cost_acc=request.POST.get('cost_acc')      
         cost_desc=request.POST.get('cost_desc')
-        
+        hsn=request.POST.get('hsn')
         units=Unit.objects.get(id=ut)
         sel=Sales.objects.get(id=sell_acc)
         cost=Purchase.objects.get(id=cost_acc)
@@ -5016,7 +5018,7 @@ def recurbills_item(request):
         u  = User.objects.get(id = request.user.id)
 
         item=AddItem(type=type,Name=name,p_desc=cost_desc,s_desc=sell_desc,s_price=sell_price,p_price=cost_price,
-                     user=u ,creat=history,interstate=inter,intrastate=intra,unit = units,sales = sel, purchase = cost)
+                     user=u ,creat=history,interstate=inter,intrastate=intra,unit = units,sales = sel, purchase = cost,hsn=hsn )
 
         item.save()
 
@@ -5078,8 +5080,9 @@ def get_rate(request):
         item = AddItem.objects.get( id = id, user = user)
          
         rate = 0 if item.s_price == "" else item.s_price
+        hsn = 0 if item.hsn == "" else item.hsn
 
-        return JsonResponse({"rate": rate},safe=False)
+        return JsonResponse({"rate": rate,"hsn":hsn},safe=False)
     
 @login_required(login_url='login')
 def get_cust_state(request):
@@ -10953,5 +10956,12 @@ def repeat_dropdown(request):
         options[option.id] = [option.repeat]
 
     return JsonResponse(options)
+
+@login_required(login_url='login')
+def get_rec_item(request):
+    cmp1 = request.user
+    name=request.GET.get('name')
+    data=AddItem.objects.get(Name=name,user_id=cmp1) 
+    return JsonResponse({"item":data})
 
     

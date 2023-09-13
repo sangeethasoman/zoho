@@ -373,16 +373,8 @@
                   </div>  
                 </td>
 
-                <td  style="width: 20%;">
-                  <div class="d-flex">
-                    <select name='HSN[]' id="HSN0" class="form-control item text-dark bg-light">
-                      <option value=" " selected disabled>Select HSN</option>
-                      {% for j in HSN %}
-                        <option value="{{i.id}}">{{ j.HSN }} </option>
-                      {% endfor %}
-                    
-                    </select>
-                  </div>  
+                <td  style="width: 50%;">
+                  <input type="text" disabled name='hsn' id="HSN0" placeholder='HSN' class="form-control HSN text-dark bg-light" />
                 </td>
 
                 
@@ -2429,6 +2421,11 @@ $(document).ready(function() {
               </select>
             </div>  
           </td>
+
+          <td style="width: 11%;">
+            <input type="text" name='HSN[]' id="HSN${roinc}" placeholder='HSN' class="form-control HSN text-dark bg-light" step="0.00" min="0"  />
+          </td>
+
           <td  style="width: 20%;">
             <div class="d-flex">
               <select name='account[]' id="account${roinc}" class="form-control acnt text-dark bg-light ">
@@ -3359,6 +3356,7 @@ $(document).on("click","#itemSave",function(){
         cost_acc : $("#cost_acc").val(),
         sell_desc : $("#sell_desc").val(),
         cost_desc : $("#cost_desc").val(),
+        hsn : $("#HSN").val(),
         
         csrfmiddlewaretoken: '{{ csrf_token }}'
         
@@ -3568,7 +3566,7 @@ function reloadAccount() {
 
 
 $(document).ready(function() {
-  $("#item0").change(function() {
+  $("#item0").change(function() { debugger
     $.ajax({
       url: "{% url 'get_rate' %}",
       type : 'POST',
@@ -3578,12 +3576,12 @@ $(document).ready(function() {
           csrfmiddlewaretoken: '{{ csrf_token }}'
         },
     
-      success: function(response) {
+      success: function(response) { debugger
         $("#rate0").val(response.rate);
-
+        $("#HSN0").val(response.hsn);
 
       },
-    });
+    }); 
   });
 });
 
