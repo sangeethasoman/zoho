@@ -4394,14 +4394,15 @@ def create_recurring_bills(request):
         end = None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
         pay_term =request.POST['terms']
 
-        hsn = request.POST.getlist('hsn')
+        hsn = request.POST.get('HSN0')
+        bill_no =  request.POST.get('recur_bills')
         sub_total =request.POST['subtotal']
 
         sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
         cgst=None if request.POST.get('cgst') == "" else  request.POST.get('cgst')
         igst= None if request.POST.get('igst') == "" else  request.POST.get('igst')
         # print(igst)
-
+        print(hsn)
         if src_supply == company.state:
             tax1 = sgst + cgst
         else:
@@ -4419,7 +4420,7 @@ def create_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u,hsn = hsn,   )
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no)
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4459,7 +4460,7 @@ def create_recurring_bills(request):
                         ac = ele[1]
                     
                     created = recurring_bills_items.objects.create(item = it,account = ac,quantity=ele[2],rate=ele[3],
-                    tax=ele[4],discount = ele[5],amount=ele[6],user = u,company = company, recur_bills = r_bill)
+                    tax=ele[4],discount = ele[5],amount=ele[6],user = u,company = company, recur_bills = r_bill, hsn=hsn)
 
         return redirect('recurring_bill')
     return redirect('recurring_bill')
