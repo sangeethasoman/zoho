@@ -115,7 +115,10 @@
             <option value="{{v.id}} {{ v.first_name }} {{ v.last_name }}">{{ v.first_name }} {{ v.last_name }}</option>
             {% endfor %}
           </select>
-          <a href="" data-toggle="modal" data-target="#newvendor">+ Add New Vendor</a>
+          <a href="" class="p-2 ml-2" data-toggle="modal" data-target="#newvendor">
+            <i class="fas fa-plus p-2 rounded " style="color: white; background-color: rgb(210, 132, 30); "
+                data-toggle="tooltip" title="Create Vendor"></i>
+          </a>
         </div>
       </div>
 
@@ -305,7 +308,11 @@
             <option value="{{c.id}} {{ c.customerName }}">{{ c.customerName }}</option>
             {% endfor %}
           </select>
-          <a href="" data-toggle="modal" data-target="#newcustomer">+ Add New Customer</a>
+          <a href="" class="p-2 ml-2" data-toggle="modal" data-target="#newcustomer">
+            <i class="fas fa-plus p-2 rounded" style="color: white; background-color: rgb(210, 132, 30); "
+                data-toggle="tooltip" title="Create Customer"></i>
+          </a>
+        
           <input type="hidden" id="cust_state" value="" readonly >
 
           <input type="hidden" id="company_state" value="{{company.state}}" readonly>
@@ -348,6 +355,7 @@
                 <th class="text-center text-uppercase">Item Details <br>
                   <a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ add item</a>
                 </th>
+                <th class="text-center text-uppercase">HSN </th>
                 <th class="text-center text-uppercase">account <br>
                   <a href="" data-toggle="modal" data-target="#newaccount" class="text-capitalize">+ Add Account</a>
 
@@ -373,6 +381,10 @@
                     
                   </div>  
                 </td>
+                <td  style="width: 50%;">
+                  <input type="text" value="0" name='HSN0' id="HSN0" placeholder='HSN' class="form-control HSN text-dark bg-light" />
+                </td>
+
                 <td  style="width: 20%;">
                   <div class="d-flex">
                     <select name='account[]' id="account{{forloop.counter0}}" class="form-control acnt text-dark bg-light">
@@ -571,6 +583,59 @@
         </div>
       </div>
 
+      <div class="row" >
+        <div class="col-md-5 mt-2 p-3 mx-5">
+          <label for="paymentmethod">Payment Method</label>
+          <select name="paymentmethod" id="paymentmethod" class="form-control text-dark bg-light">
+            <option value="{{recur_bills.payment_method}}" selected>{{recur_bills.payment_method}}</option>   
+
+          
+              <option value="Cash">Cash</option>
+              <option value="Cheque">Cheque</option>
+              <optgroup label="BankName">Bank Name</optgroup>
+              <option value="not applicable">Not applicable</option> 
+              <option value="ALLAHABAD BANK">ALLAHABAD BANK </option>
+              <option value="ANDHRA BANK">ANDHRA BANK</option>
+              <option value="AXIS BANK">AXIS BANK</option>
+              <option value="STATE BANK OF INDIA">STATE BANK OF INDIA</option>
+              <option value="BANK OF BARODA">BANK OF BARODA</option>
+              <option value="UCO BANK">UCO BANK</option>
+              <option value="UNION BANK OF INDIA">UNION BANK OF INDIA</option>
+              <option value="BANK OF INDIA">BANK OF INDIA</option>
+              <option value="BANDHAN BANK LIMITED">BANDHAN BANK LIMITED</option>
+              <option value="CANARA BANK">CANARA BANK</option>
+              <option value="GRAMIN VIKASH BANK">GRAMIN VIKASH BANK</option>
+              <option value="CORPORATION BANK">CORPORATION BANK</option>
+              <option value="INDIAN BANK">INDIAN BANK</option>
+              <option value="INDIAN OVERSEAS BANK">INDIAN OVERSEAS BANK</option>
+              <option value="ORIENTAL BANK OF COMMERCE">ORIENTAL BANK OF COMMERCE</option>
+              <option value="PUNJAB AND SIND BANK">PUNJAB AND SIND BANK</option>
+              <option value="PUNJAB NATIONAL BANK">PUNJAB NATIONAL BANK</option>
+              <option value="RESERVE BANK OF INDIA">RESERVE BANK OF INDIA</option>
+              
+              <option value="UNITED BANK OF INDIA">UNITED BANK OF INDIA</option>
+              <option value="CENTRAL BANK OF INDIA">CENTRAL BANK OF INDIA</option>
+              <option value="VIJAYA BANK">VIJAYA BANK</option>
+              <option value="DENA BANK">DENA BANK</option>
+              <option value="BHARATIYA MAHILA BANK LIMITED">BHARATIYA MAHILA BANK LIMITED</option>
+              <option value="FEDERAL BANK LTD">FEDERAL BANK LTD </option>
+              <option value="HDFC BANK LTD">HDFC BANK LTD</option>
+              <option value="ICICI BANK LTD">ICICI BANK LTD</option>
+              <option value="IDBI BANK LTD">IDBI BANK LTD</option>
+              <option value="PAYTM BANK">PAYTM BANK</option>
+              <option value="FINO PAYMENT BANK">FINO PAYMENT BANK</option>
+              <option value="INDUSIND BANK LTD">INDUSIND BANK LTD</option>
+              <option value="KARNATAKA BANK LTD">KARNATAKA BANK LTD</option>
+              <option value="KOTAK MAHINDRA BANK">KOTAK MAHINDRA BANK</option>
+              <option value="YES BANK LTD">YES BANK LTD</option>
+              <option value="SYNDICATE BANK">SYNDICATE BANK</option>
+              <option value="BANK OF INDIA">BANK OF INDIA</option>
+              <option value="BANK OF MAHARASHTRA">BANK OF MAHARASHTRA</option>
+             
+          </select>
+          </div>
+        </div>
+
       <div class="row clearfix" >
         <div class="col-md-5 mt-2 p-3 mx-5">
           <label for="">Note</label>
@@ -645,14 +710,27 @@
                 value="{{recur_bills.grand_total}}"class="form-control text-dark bg-light" readonly>
             </div>
           </div>
+
+          <div class="row container-fluid  p-2 m-0">
+            <div class="col-sm-5 mt-2"><label for="a" class="text-center" id="Paid">Paid</label></div>
+            <div class="col-sm-2 mt-2"></div>
+            <div class="col-sm-5 mt-2"><input type="number" name='amtPaid' id="amtPaid" placeholder="0" step="0.00" min="0"
+                class="form-control text-dark bg-light" readonly>
+            </div>
+          </div>
         </div>   
       </div>
       <div class="row mt-5 mb-3">
         
         <div class="col-md-4">
           <div class="d-flex">
-            <input type="submit" class="btn save_btn mt-2 py-2 rounded-pill text-grey w-50 my-4 mx-2" style="width: 200px; text-align: center ;" value="SAVE CHANGES" id="save">
-            <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4 mt-2 py-2" aria-label="Close" id="cancelButton">CANCEL</button>
+            <input type="submit" class="btn text-white mt-5" style="background-color:  rgb(59, 59, 58) ; "
+            onclick="saveAsDraftDialog()" value="Save As Draft"> &nbsp;
+        <input type="submit" class="btn text-white mt-5" style="background-color: rgb(210, 132, 30) ; "
+            onclick="saveAndOpenDialog()" value="SAVE CHANGES"> &nbsp;
+        <input type="submit" class="btn text-white mt-5" style="background-color:  rgb(59, 59, 58) ; "
+            onclick="cancelDialog()" value="Cancel">
+            
           </div>
         </div>
         <div class="col-md-4"></div>
@@ -1865,6 +1943,14 @@
                   </div>
                   <div class="col-md-6">
                     <input type="text" class="form-control text-dark bg-light" id="item_name" name="item_name" required>
+                  </div>
+                </div>
+                <div class="row mt-2">
+                  <div class="col-md-3">
+                    <label for="name" style="color: rgb(190, 88, 88);">HSN</label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control text-dark bg-light" id="HSN" name="HSN" required>
                   </div>
                 </div>
                 <div class="row mt-2">
@@ -3293,6 +3379,7 @@ $(document).on("click","#itemSave",function(){
         cost_acc : $("#cost_acc").val(),
         sell_desc : $("#sell_desc").val(),
         cost_desc : $("#cost_desc").val(),
+        hsn : $("#HSN").val(),
         
         csrfmiddlewaretoken: '{{ csrf_token }}'
         
@@ -3511,6 +3598,8 @@ $(document).ready(function() {
     
       success: function(response) {
         $("#rate0").val(response.rate);
+        $("#HSN0").val(response.hsn);
+
 
 
       },

@@ -283,15 +283,13 @@
                             <a class="btn text-center btn-primary bi bi-funnel px-3 py-1" data-bs-toggle="dropdown"
                                 role="button"></a>
                             <div class="dropdown-menu " style="z-index: 1;">
-                                 <a class="dropdown-item" href="{% url 'view_custasc' recur_bill.id  %}">Customer A-Z</a>
-                                <a class="dropdown-item" href="{% url 'view_custdesc' recur_bill.id %}">Customer Z-A</a>
-                                <a class="dropdown-item" href="{% url 'view_vendorasc' recur_bill.id %}">Vendor A-Z</a>
-                                <a class="dropdown-item" href="{% url 'view_vendordesc' recur_bill.id %}">Vendor Z-A</a>
-                                <a class="dropdown-item" href="{% url 'view_profileasc' recur_bill.id %}">Profile A-Z</a>
-                                <a class="dropdown-item" href="{% url 'view_profiledesc' recur_bill.id %}">Profile Z-A</a>
+                                <a class="dropdown-item dropdown-sort">All</a>
+                                <a class="dropdown-item dropdown-sort">Bill No:</a>
+                                <a class="dropdown-item dropdown-sort">Vendor A-Z</a>
+                                <a class="dropdown-item dropdown-sort">Profile Name A-Z</a>
 
                             </div>
-                        </div>
+                        </div>&nbsp; &nbsp;
                         <div class="col-md-2 mr-4 mt-2">
                             <a href="{% url 'add_recurring_bills' %}" class="btn btn-primary fa fa-plus px-3 pt-1"
                                 role="button">
@@ -749,37 +747,37 @@
                 </div>
                 <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
                     <div class="card p-0 m-0">
-                        <form action="" method="post" class="needs-validation" novalidate autocomplete="off"
-                            id="modalComment">
-                            <div class="row mt-2">
-                                <input type="hidden" value="{{recur_bill.id}}" id="com_id">
-                                <div class="col-md-6 mt-2">
-                                    {% if recur_bill.comments %}
-                                    <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
-                                        style="height: 200px; width: 550px;">{{recur_bill.comments}}</textarea>
-                                    {% else %}
-                                    <textarea class="form-control text-dark bg-light" id="comment" name="comment" required
-                                        style="height: 200px; width: 550px;"></textarea>
-                                    {% endif %}
+                        <form action="{% url 'rec_comments' user.id %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <textarea type="text" class="form-control text-dark" name="comments"></textarea>
+                                <div class="container-fluid">
+                                    
+                                    <table class="table table-responsive-md mt-4">
+                                        <thead>
+                                        <tr>
+                                            <th>sl no.</th>
+                                            <th>Comments</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for com in comments %}
+                                                <tr  class="table-row">
+                                                    <td>{{forloop.counter }}</td>
+                                                    <td>{{com.comment}}</td>
+                                                    <td><a href="{% url 'delete_rec_comments' user.id com.commentid %}">Delete</a></td>
+                                                </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3" type="submit"
-                                            data-dismiss="modal" id="commentSave">Save </button>
-
-
-                                        <button type="button"
-                                            class="close btn save_btn rounded-pill text-grey w-50 my-4"
-                                            data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">Cancel</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4"></div>
+            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            
+                                <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </form>
                     </div>
@@ -1062,6 +1060,65 @@ $(document).ready(function () {
         });
 
  });
+
+</script>
+
+<script>
+     $(document).ready(function ($) { 
+        TableDataBind(getData());
+    });
+
+    function TableDataBind(jsonObj){ 
+
+    $("#recTable").empty();
+         $.each(jsonObj, function (index, data) {
+            var newRow = $("<tr>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.start_date+"</a></td>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.profile_name+"</a></td>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.vend_name+"</a></td>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.cust_name+"</a></td>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.grand_total+"</a></td>"); 
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.grand_total+"</a></td>"); 
+            newRow.append(`<td><a href='/delete_recurring_bills/${data.id}'><i class='fas fa-trash text-danger text-center'></i></a></td>`);
+
+            $("#recTable").append(newRow);
+         })
+
+
+
+    }
+
+    function getData(){
+      var bills = '{{recur_bill}}';  
+      return $.parseJSON(bills.replace(new RegExp("&"+"#"+"x27;", "g"), '"'));
+}
+
+
+    $(".dropdown-sort").click(function() { 
+      
+      var selectedItem = $(this).text(); 
+      
+      if(selectedItem == 'Bill No:'){
+        sortResults('bill_no');
+      }
+      else if (selectedItem == 'Vendor A-Z'){
+        sortResults('vend_name');
+      } 
+      else if (selectedItem == 'Profile Name A-Z'){
+        sortResults('profile_name');
+      }
+      else{
+        TableDataBind(getData());
+      }
+  });
+
+  function sortResults(prop) { 
+      var jsonObj = getData().sort(function(a, b) { 
+            return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0); 
+        }); 
+
+      TableDataBind(jsonObj)
+}
 
 </script>
 

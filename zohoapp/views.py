@@ -4401,6 +4401,8 @@ def create_recurring_bills(request):
         sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
         cgst=None if request.POST.get('cgst') == "" else  request.POST.get('cgst')
         igst= None if request.POST.get('igst') == "" else  request.POST.get('igst')
+
+        status = 'Save'
         # print(igst)
         print(hsn)
         if src_supply == company.state:
@@ -4420,7 +4422,7 @@ def create_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no)
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status)
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4464,6 +4466,103 @@ def create_recurring_bills(request):
 
         return redirect('recurring_bill')
     return redirect('recurring_bill')
+
+
+@login_required(login_url='login')
+def draft_recurring_bills(request):
+
+    company = company_details.objects.get(user = request.user)
+    # print(request.POST.get('customer').split(" ")[0])
+    cust = customer.objects.get(id=request.POST.get('customer').split(" ")[0],user = request.user)
+
+    if request.method == 'POST':
+        # vname = request.POST.get('vendor').rsplit(' ', 1)
+        # cname = request.POST.get('customer').split(" ")[1:]
+        vname  = request.POST.get('vendor')
+        cname = request.POST.get('customer')
+        # cname = " ".join(cname)
+        v_gst_no=request.POST.get('gstin_inp')   # haripriya add
+        src_supply = request.POST.get('srcofsupply')
+        prof = request.POST['prof_name']
+        repeat = request.POST['repeats']
+        start = request.POST.get('start_date')
+        end = None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
+        pay_term =request.POST['terms']
+
+        hsn = request.POST.get('HSN0')
+        bill_no =  request.POST.get('recur_bills')
+        sub_total =request.POST['subtotal']
+
+        sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
+        cgst=None if request.POST.get('cgst') == "" else  request.POST.get('cgst')
+        igst= None if request.POST.get('igst') == "" else  request.POST.get('igst')
+
+        status = 'Draft'
+        # print(igst)
+        print(hsn)
+        if src_supply == company.state:
+            tax1 = sgst + cgst
+        else:
+            tax1 = igst
+           
+        # print(tax1)
+
+        shipping_charge=0 if request.POST['addcharge'] == "" else request.POST['addcharge']
+        grand_total=request.POST['grand_total']
+        note=request.POST.get('note')
+
+        u = User.objects.get(id = request.user.id)
+
+        bills = recurring_bills(vendor_name=vname,profile_name=prof,customer_name = cname,vendor_gst_number=v_gst_no,
+                    source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
+                    payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
+                    tax_amount=tax1, shipping_charge = shipping_charge,
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status)
+        bills.save()
+
+        r_bill = recurring_bills.objects.get(id=bills.id)
+
+        if len(request.FILES) != 0:
+            r_bill.document=request.FILES['file'] 
+            r_bill.save()
+
+        items = request.POST.getlist("item[]")
+       
+        accounts = request.POST.getlist("account[]")
+        quantity = request.POST.getlist("qty[]")
+        rate = request.POST.getlist("rate[]")
+        
+        if (" ".join(src_supply.split(" ")[1:])) == company.state:
+            tax = request.POST.getlist("tax1[]")
+        else:
+            tax = request.POST.getlist("tax2[]")
+
+        discount = 0 if request.POST.getlist("discount[]") == " " else request.POST.getlist("discount[]")
+        amount = request.POST.getlist("amount[]")
+
+        if len(items)==len(accounts)==len(amount) == len(quantity) == len(rate)==len(tax) == len(discount) and items and accounts and quantity and rate and tax and discount and amount:
+                
+                mapped=zip(items,accounts,quantity,rate,tax,discount,amount)
+                mapped=list(mapped)
+
+                for ele in mapped:
+
+                    it = AddItem.objects.get(user = request.user, id = ele[0]).Name
+                    try:
+                        int(ele[1])
+                        ac = Chart_of_Account.objects.get(user = request.user,id = ele[1]).account_name
+                        
+                    except ValueError:
+                        
+                        ac = ele[1]
+                    
+                    created = recurring_bills_items.objects.create(item = it,account = ac,quantity=ele[2],rate=ele[3],
+                    tax=ele[4],discount = ele[5],amount=ele[6],user = u,company = company, recur_bills = r_bill, hsn=hsn)
+
+        return redirect('recurring_bill')
+    return redirect('recurring_bill')
+
+
 
 
 
@@ -10964,5 +11063,26 @@ def get_rec_item(request):
     name=request.GET.get('name')
     data=AddItem.objects.get(Name=name,user_id=cmp1) 
     return JsonResponse({"item":data})
+
+@login_required(login_url='regcomp')
+def rec_comments(request,id):
+    if request.method == 'POST':
+        user=request.user 
+        cmp1 = request.user
+        comments= rec_comments(userid=user,cid=cmp1,comment=request.POST['comments'])
+        comments.save()
+        return redirect('view_recurring_bills',id)
+
+@login_required(login_url='regcomp')
+def delete_rec_comments(request,id, commentid):
+    try:
+        comment = rec_comments.objects.get(cmp1=request.session["uid"],userid = id,commentid=commentid)
+        comment.delete()
+        return redirect('view_recurring_bills',id)
+    except:
+        return redirect('view_recurring_bills',id)
+
+        
+
 
     

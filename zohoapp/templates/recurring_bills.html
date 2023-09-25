@@ -293,7 +293,7 @@ $('.dropdown-toggle').dropdown();
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.vend_name+"</a></td>");
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.cust_name+"</a></td>");
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.grand_total+"</a></td>"); 
-            newRow.append("<td></td>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.grand_total+"</a></td>"); 
             newRow.append(`<td><a href='/delete_recurring_bills/${data.id}'><i class='fas fa-trash text-danger text-center'></i></a></td>`);
 
             $("#recTable").append(newRow);
