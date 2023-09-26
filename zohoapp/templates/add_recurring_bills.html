@@ -3244,9 +3244,8 @@ $.ajax({
                <option value="Month">Month</option>
                
                <option value="Year">Year</option>`); 
-    $.each(data, function(key, value) {
-      
-        dropdown.append('<option value='+value[0]+'>'+value[0]+'</option>'); 
+    $.each(data, function(key, value) { 
+        dropdown.append('<option value="'+value[0]+'">'+value[0]+'</option>'); 
     });
   },
   error: function(xhr, status, error) {

@@ -4205,7 +4205,7 @@ def recurring_bill(request):
         r['vend_name'] = " ".join(vn)
         cn = r['customer_name'].split()[2:]
         r['cust_name'] = " ".join(cn)
-        record = {"start_date":str(r['start_date']),"profile_name":r['profile_name'],"vend_name":str(r['vend_name']),"cust_name":r['cust_name'],"grand_total":r['grand_total'],"id":r['id']}
+        record = {"start_date":str(r['start_date']),"bill_no":str(r['bill_no']),"profile_name":r['profile_name'],"vend_name":str(r['vend_name']),"cust_name":r['cust_name'],"grand_total":r['grand_total'],"id":r['id']}
         pickup_records.append(record)
 
 
@@ -4393,6 +4393,8 @@ def create_recurring_bills(request):
         start = request.POST.get('start_date')
         end = None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
         pay_term =request.POST['terms']
+        payment_method =request.POST['paymentmethod']
+        amt_paid =request.POST['amtPaid']
 
         hsn = request.POST.get('HSN0')
         bill_no =  request.POST.get('recur_bills')
@@ -4422,7 +4424,7 @@ def create_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status)
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status,payment_method=payment_method, amt_paid=amt_paid)
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4488,6 +4490,9 @@ def draft_recurring_bills(request):
         start = request.POST.get('start_date')
         end = None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
         pay_term =request.POST['terms']
+        payment_method =request.POST['paymentmethod']
+        amt_paid =request.POST['amtPaid']
+
 
         hsn = request.POST.get('HSN0')
         bill_no =  request.POST.get('recur_bills')
@@ -4517,7 +4522,7 @@ def draft_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status)
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status, payment_method=payment_method, amt_paid=amt_paid)
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4713,12 +4718,12 @@ def delete_recurring_bills(request, id):
     
 @login_required(login_url='login')
 def view_recurring_bills(request,id):
-
+   
     company = company_details.objects.get(user = request.user)
     bills = recurring_bills.objects.filter(user = request.user)
     rbill=recurring_bills.objects.get(user = request.user, id= id)
-    billitem = recurring_bills_items.objects.filter(user = request.user,recur_bills=id)
-    
+    billitem = recurring_bills_items.objects.filter(user = request.user,recur_bills=id) 
+    comment = rec_comments.objects.filter(recur_bills_id=rbill) 
     cust = customer.objects.get(id = rbill.customer_name.split(" ")[0])
     vend = vendor_table.objects.get(id = rbill.vendor_name.split(" ")[0])
     gst_or_igst = "GST" if company.state == (" ".join(rbill.source_supply.split(" ")[1:])) else "IGST"
@@ -4740,6 +4745,7 @@ def view_recurring_bills(request,id):
                 'vendor' : vend,
                 'customer_name' : cust_name,
                 'vendor_name' : vend_name,
+                'comments':comment
             }
 
     return render(request, 'view_recurring_bills.html',context)
@@ -11065,18 +11071,24 @@ def get_rec_item(request):
     return JsonResponse({"item":data})
 
 @login_required(login_url='regcomp')
-def rec_comments(request,id):
+def add_rec_comments(request,id):
     if request.method == 'POST':
-        user=request.user 
-        cmp1 = request.user
-        comments= rec_comments(userid=user,cid=cmp1,comment=request.POST['comments'])
+        
+        recur_bills = recurring_bills.objects.get(id = id)
+        
+        comment = request.POST['comments']
+        user = User.objects.get(id=request.user.id)
+        
+        comments= rec_comments(recur_bills=recur_bills,user=user,comment=comment)
         comments.save()
         return redirect('view_recurring_bills',id)
 
 @login_required(login_url='regcomp')
-def delete_rec_comments(request,id, commentid):
+def delete_rec_comments(request,id,commentid):
     try:
-        comment = rec_comments.objects.get(cmp1=request.session["uid"],userid = id,commentid=commentid)
+        print(str(commentid))
+        comment = rec_comments.objects.get(commentid=commentid)
+        print(comment)
         comment.delete()
         return redirect('view_recurring_bills',id)
     except:

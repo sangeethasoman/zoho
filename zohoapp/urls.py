@@ -516,7 +516,7 @@ urlpatterns = [
     path('repeat_dropdown',views.repeat_dropdown,name='repeat_dropdown'),
     path('get_rec_item',views.get_rec_item,name='get_rec_item'), 
     path('draft_recurring_bills',views.draft_recurring_bills,name='draft_recurring_bills'), 
-    path('rec_comments/<int:id>', views.rec_comments, name='rec_comments'),
+    path('add_rec_comments/<int:id>', views.add_rec_comments, name='add_rec_comments'),
     path('delete_rec_comments/<int:id>/<int:commentid>', views.delete_rec_comments, name='delete_rec_comments'),
     
 ]

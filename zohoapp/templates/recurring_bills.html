@@ -189,6 +189,7 @@
                         <thead>
                             <tr>
                                 <th>DATE</th>
+                                <th>BILL NO.</th>
                                 <th>PROFILE NAME</th>
                                 <th>VENDOR NAME</th>
                                 <th>CUSTOMER NAME</th>
@@ -289,6 +290,7 @@ $('.dropdown-toggle').dropdown();
          $.each(jsonObj, function (index, data) {
             var newRow = $("<tr>");
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.start_date+"</a></td>");
+            newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.bill_no+"</a></td>");
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.profile_name+"</a></td>");
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.vend_name+"</a></td>");
             newRow.append("<td><a href='/view_recurring_bills/" + data.id + "'>"+data.cust_name+"</a></td>");

@@ -525,6 +525,7 @@ class recurring_bills(models.Model):
     bill_no = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,null=True,blank=True)
     payment_method = models.CharField(max_length=100,null=True,blank=True)
+    amt_paid = models.CharField(max_length=100,null=True,blank=True)
     
 
 class recurring_bills_items (models.Model):
@@ -1142,8 +1143,8 @@ class repeat(models.Model):
 
 class rec_comments(models.Model):
     commentid = models.AutoField(('COMMENTID'), primary_key=True)
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,default='')
-    customr=models.ForeignKey(customer,on_delete=models.CASCADE,null=True)
+    recur_bills = models.ForeignKey(recurring_bills,on_delete=models.CASCADE,null=True,blank=True)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,default='') 
     comment = models.CharField(max_length=250,null=True)
       
     
