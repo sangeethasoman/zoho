@@ -264,7 +264,7 @@
   
 </style>
 
-<div class="container-fulid containerprof">
+<div class="container-fulid containerprof"> 
     <div id="details-list" class="vh-100 col-lg-6">
         <div class="card radius-5 p-2">
             <div class="card-body">
@@ -306,11 +306,9 @@
                             
                             <div class="row mt-3">
                                 <div class="col-md-7">
-                                    <label style="color: azure; font-size: 18px;" class="mx-3 text-capitalize text-center pname">{{b.profile_name}} </label><br>
-                                        <!-- <label style="color: rgb(129, 126, 126); font-size: 15px;" class="mx-3 px-2"># RB- {{ b.id }} </label> -->
+                                    <label style="color: azure; font-size: 18px;" class="mx-3 text-capitalize text-center pname">{{b.profile_name}} </label><br> 
                                         <label style="color: rgb(129, 126, 126); font-size: 15px; "class="mx-2 px-2"> {{ b.start_date }} </label>
-                                </div>
-                                <!-- <div class="col-md-1"></div> -->
+                                </div> 
                                 <div class="col-md-5 mt-3">
                                     <label style="color: rgb(129, 126, 126); font-size: 15px;">₹ {{ b.grand_total|floatformat:2 }} </label>
                                 </div>
@@ -565,7 +563,18 @@
                                     </span>
                                 </b>
                             </div>
+
+                            <p class="text-grey">Bill No:</p>
+                            <div class="d-flex justify-content-between align-items-center mb-5">
+                                <b>
+                                    <span style=" color: #434141;">
+                                        <input type="text" value="{{ recur_bill.bill_no }}"
+                                            class="amnt text-dark" style="font-size: 18px; color: #434141;">
+                                    </span>
+                                </b>
+                            </div>
                             <hr class="my-4">
+
 
 
                             <div class="row mb-4 d-flex justify-content-between align-items-center">
@@ -611,6 +620,15 @@
                                 </div>
                                 <div class="col-md-6 mt-3">
                                     <p class="mb-0" style="font-size: 18px; color: #434141;"> NET {{ recur_bill.payment_terms }}</p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                <div class="col-md-6 mt-3">
+                                    <h6 class="mb-0 text-grey">Payment Method:</h6>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <p class="mb-0" style="font-size: 18px; color: #434141;">{{ recur_bill.payment_method }}</p>
                                 </div>
                             </div>
 
@@ -717,10 +735,40 @@
 
                             <div class="d-flex justify-content-between mb-5">
                                 <div class="col-md-6 mt-3">
+                                    <h6 style="color: #ccc;">Adjustment :</h5><br>
+                                </div>
+                                <div class="col-md-6 mt-3 mx-3">
+                                    <input type="text" value="{{ recur_bill.adjustment|floatformat:2 }} INR"
+                                        class="amnt " style="font-size: 16px; color: azure;" readonly>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-5">
+                                <div class="col-md-6 mt-3">
                                     <h6 style="color: #ccc;">Grand Total :</h5><br>
                                 </div>
                                 <div class="col-md-6 mt-3 mx-3">
                                     <input type="text" value="{{ recur_bill.grand_total|floatformat:2 }} INR"
+                                        class="amnt " style="font-size: 16px; color: azure;" readonly>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-5">
+                                <div class="col-md-6 mt-3">
+                                    <h6 style="color: #ccc;">Amount Paid :</h5><br>
+                                </div>
+                                <div class="col-md-6 mt-3 mx-3">
+                                    <input type="text" value="{{ recur_bill.amt_paid|floatformat:2 }} INR"
+                                        class="amnt " style="font-size: 16px; color: azure;" readonly>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-5">
+                                <div class="col-md-6 mt-3">
+                                    <h6 style="color: #ccc;">Balance :</h5><br>
+                                </div>
+                                <div class="col-md-6 mt-3 mx-3">
+                                    <input type="text" value="{{ recur_bill.balance|floatformat:2 }} INR"
                                         class="amnt " style="font-size: 16px; color: azure;" readonly>
                                 </div>
                             </div>
@@ -736,7 +784,7 @@
     <!-- comment modal -->
 
     <div class="modal fade " id="cmnts"
-        style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+        style="width: 750px; margin-left: 350px; justify-content: center; overflow: auto;">
         <div class="modal-dialog modal-xl m-5 p-5">
             <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
                 <div class="modal-header " style="background: rgb(32, 35, 37);">
@@ -745,7 +793,7 @@
                         aria-label="Close">&times;</button>
 
                 </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: auto;">
                     <div class="card p-0 m-0">
                         <form action="{% url 'add_rec_comments' recur_bill.id %}" method="POST" enctype="multipart/form-data">
                             {% csrf_token %}

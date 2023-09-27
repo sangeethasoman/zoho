@@ -525,7 +525,8 @@ class recurring_bills(models.Model):
     bill_no = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,null=True,blank=True)
     payment_method = models.CharField(max_length=100,null=True,blank=True)
-    amt_paid = models.CharField(max_length=100,null=True,blank=True)
+    amt_paid = models.FloatField(null=True,blank=True)
+    balance = models.FloatField(null=True,blank=True)
     
 
 class recurring_bills_items (models.Model):
