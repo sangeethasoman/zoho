@@ -289,6 +289,14 @@
                                 <a class="dropdown-item dropdown-sort">Profile Name A-Z</a>
 
                             </div>
+                            <a class="btn text-center btn-primary bi bi-filter px-3 py-1" data-bs-toggle="dropdown"
+                        role="button" >
+                        </a>
+                        <div class="dropdown-menu ">
+                            <a class="dropdown-item dropdown-filter">All</a>
+                            <a class="dropdown-item dropdown-filter">Save</a>
+                            <a class="dropdown-item dropdown-filter">Draft</a> 
+                        </div>
                         </div>&nbsp; &nbsp;
                         <div class="col-md-2 mr-4 mt-2">
                             <a href="{% url 'add_recurring_bills' %}" class="btn btn-primary fa fa-plus px-3 pt-1"
@@ -305,13 +313,15 @@
                         <a href="{% url 'view_recurring_bills' b.id %}" class="my-3">
                             
                             <div class="row mt-3">
-                                <div class="col-md-7">
-                                    <label style="color: azure; font-size: 18px;" class="mx-3 text-capitalize text-center pname">{{b.profile_name}} </label><br> 
-                                        <label style="color: rgb(129, 126, 126); font-size: 15px; "class="mx-2 px-2"> {{ b.start_date }} </label>
+                                <div class="col-md-6">
+                                    <label style="color: azure; font-size: 18px;" class="mx-3 text-capitalize text-center pname">{{b.profile_name}} </label> 
                                 </div> 
-                                <div class="col-md-5 mt-3">
-                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">₹ {{ b.grand_total|floatformat:2 }} </label>
-                                </div>
+                                <div class="col-md-6">
+                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">₹ {{ b.grand_total|floatformat:2 }} </label> 
+                                    <label style="color: rgb(129, 126, 126); font-size: 15px;"> {{ b.start_date|date:'d/m/Y' }} </label>
+                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">{{ b.status }} </label> 
+                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">{{ b.bill_no }} </label>
+                                </div> 
                             </div>
 
                         </a> 
@@ -1168,6 +1178,25 @@ $(document).ready(function () {
       TableDataBind(jsonObj)
 }
 
+
+$(".dropdown-filter").click(function() { 
+        var selectedItem = $(this).text(); 
+        
+        if(selectedItem == 'Save'){
+          filterResults('Save');
+        }
+        else if (selectedItem == 'Draft'){
+          filterResults('Draft');
+        }  
+        else{
+          TableDataBind(getData());
+        }
+    });
+
+    function filterResults(prop) { 
+      var jsonObj = getData().filter(e => e.status == prop);
+      TableDataBind(jsonObj)
+}
 </script>
 
 {% endblock %}
