@@ -4631,7 +4631,7 @@ def change_recurring_bills(request,id):
         r_bill.customer_name= request.POST.get('customer')
         r_bill.profile_name = request.POST['prof_name']
         r_bill.source_supply=request.POST['srcofsupply']
-        r_bill.repeat_every=request.POST['repeat']
+        r_bill.repeat_every=request.POST['repeats']
         r_bill.start_date=request.POST['start_date']
         r_bill.end_date=None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
         r_bill.payment_terms=request.POST['terms']
