@@ -100,7 +100,7 @@
   </div>
 
   <div class="card radius-15 p-5">
-    <form action="{% url 'change_recurring_bills' recur_bills.id %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data" id="myForm">
+    <form action="" class="mt-2 mb-4" method="post" enctype="multipart/form-data" id="forms">
       {% csrf_token %}
       <div class="row">
         <div class="col-md-3">
@@ -229,7 +229,10 @@
                 <option value="1 Year">Years</option>
                
             </select> -->
-            <select class="form-control text-dark bg-light" id="repeats"  name="repeats"> </select>
+           
+            <select class="form-control text-dark bg-light" id="repeats"  name="repeats"> 
+              <option selected value="{{recur_bills.repeat_every}}">{{recur_bills.repeat_every}}</option>
+            </select>
             <a href="" class="p-2 ml-2" data-toggle="modal" data-target="#newrepeat">
               <i class="fas fa-plus p-2 rounded " style="color: white; background-color: rgb(210, 132, 30); "
                   data-toggle="tooltip" title="Add Repeat"></i>
@@ -238,6 +241,16 @@
         </div>
       </div>
       <br><br>
+
+      <div class="row mt-2" >
+        <div class="col-md-3">
+          <div class="col-sm-2"><label for="bills">Recurring Bill#*</label></div>
+        </div>
+       
+          <div class="col-md-6"><input type="text" id="bills" name="bills"
+            class="form-control bg-white text-dark" value="{{ recur_bills.bill_no}}">
+        </div>
+    </div>
 
 
       <div class="row mt-2" >
@@ -277,7 +290,7 @@
              
               <option value="recpt">Due on receipt</option>
               {% for p in payments %}
-                <option selected value="{{p.id}} {{p.Terms}} {{ p.days}}" class="text-dark bg-light">{{p.Terms}}</option>
+                <option selected value="{{p.Days}}" class="text-dark bg-light">{{p.Terms}}</option>
               {% endfor %}
               
             </select>
@@ -716,8 +729,8 @@
           <div class="row container-fluid  p-2 m-0">
             <div class="col-sm-5 mt-2"><label for="a" class="text-center" id="Paid">Paid</label></div>
             <div class="col-sm-2 mt-2"></div>
-            <div class="col-sm-5 mt-2"><input type="number" name='amtPaid' id="amtPaid" placeholder="0" step="0.00" min="0"
-                class="form-control text-dark bg-light" readonly>
+            <div class="col-sm-5 mt-2"><input type="number" name='amtPaid' id="amtPaid" placeholder="0" step="0.00" min="0"  value="{{recur_bills.amt_paid}}"
+                class="form-control text-dark bg-light">
             </div>
           </div>
         </div>   
@@ -978,7 +991,7 @@
                         
                         <option value="recpt">Due on receipt</option>
                         {% for p in payments %}
-                        <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
+                        <option value="{{p.Days}}">{{p.Terms}}</option>
                         {% endfor %}
                       </select>                
                       <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newpayment" data-toggle="modal">+</a>   
@@ -1672,7 +1685,7 @@
                         
                         <option value="recpt">Due on receipt</option>
                         {% for p in payments %}
-                        <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
+                        <option value="{{p.Days}}">{{p.Terms}}</option>
                         {% endfor %}
                       </select>                
                       <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newpayment" data-toggle="modal">+</a>   
@@ -2340,6 +2353,7 @@ function toggleDateInput() {
       if (checkbox.checked) {
           dateInput.disabled = true;
          
+          $('#date2').val('');
           $("#terms").val("recpt");
       } 
       else {
@@ -3329,7 +3343,7 @@ function reloadPayment() {
                        
                         
                         <option value="recpt">Due on receipt</option>`);
-      $.each(data, function(key, value) {
+      $.each(data, function(key, value) { 
           dropdown.append($('<option></option>').attr('value', key).text(value[0]).val(value[1]));
           drpv.append($('<option></option>').attr('value', key).text(value).val(value));
       });
@@ -4151,7 +4165,7 @@ $.ajax({
     var dropdown = $('#repeats');
     dropdown.empty();
     dropdown.append(`
-               <option selected value="Week">Week</option>
+               <option value="Week">Week</option>
                
                <option value="Month">Month</option>
                
@@ -4159,6 +4173,8 @@ $.ajax({
     $.each(data, function(key, value) { 
         dropdown.append('<option value="'+value[0]+'">'+value[0]+'</option>'); 
     });
+    let seleted_val = '{{recur_bills.repeat_every}}'
+    $('select[name="repeats"]').find('option[value="'+seleted_val+'"]').attr("selected",true);
   },
   error: function(xhr, status, error) {
   console.error(xhr.responseText);
@@ -4181,16 +4197,29 @@ $.ajax({
   }
 
   function saveAsDraftDialog() {
-
+    let grand_total = $('#grandtotal').val();
+    let paid = $('#amtPaid').val(); 
+    if(parseFloat(paid) > parseFloat(grand_total)){
+       alert("Paid amount should not be greater than grand total.")
+    }
+    else{
       var frm = document.getElementById("forms");
-      frm.action = ("{% url 'draft_recurring_bills' %}")
+      frm.action = ("{% url 'change_draft_recurring_bills'  id=id %}")
+    }
   }
+function saveAndOpenDialog() {
 
-  function saveAndOpenDialog() {
-
-      var frm = document.getElementById("forms");
-      frm.action = ("{% url 'create_recurring_bills' %}")
-  }
+let grand_total = $('#grandtotal').val();
+let paid = $('#amtPaid').val(); 
+if(parseFloat(paid) > parseFloat(grand_total)){
+   alert("Paid amount should not be greater than grand total.")
+}
+else{
+  var frm = document.getElementById("forms");
+  frm.action = ("{% url 'create_recurring_bills' %}")
+}
+  
+}
 </script>
 
   

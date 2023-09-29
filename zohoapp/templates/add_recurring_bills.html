@@ -228,10 +228,10 @@
 
       <div class="row mt-2" >
         <div class="col-md-3">
-          <div class="col-sm-2"><label for="recur_bills">Recurring Bill#*</label></div>
+          <div class="col-sm-2"><label for="bills">Recurring Bill#*</label></div>
         </div>
        
-          <div class="col-md-6"><input type="text" id="recur_bills" name="recur_bills"
+          <div class="col-md-6"><input type="text" id="bills" name="bills"
             class="form-control bg-white text-dark" value="REB-00{{b_no}}">
         </div>
     </div>
@@ -271,7 +271,7 @@
              
               <option value="recpt">Due on receipt</option>
               {% for p in payments %}
-                <option selected value="{{p.id}} {{p.Terms}} {{ p.days}}" class="text-dark bg-light">{{p.Terms}}</option>
+                <option selected value="{{p.Days}}" class="text-dark bg-light">{{p.Terms}}</option>
               {% endfor %}
              
             </select>
@@ -699,8 +699,8 @@
           <div class="row container-fluid  p-2 m-0">
             <div class="col-sm-5 mt-2"><label for="a" class="text-center" id="Paid">Paid</label></div>
             <div class="col-sm-2 mt-2"></div>
-            <div class="col-sm-5 mt-2"><input type="number" name='amtPaid' id="amtPaid" placeholder="0" step="0.00" min="0"
-                class="form-control text-dark bg-light" readonly>
+            <div class="col-sm-5 mt-2"><input type="number" name='amtPaid' value="0" id="amtPaid" placeholder="0" step="0.00" min="0"
+                class="form-control text-dark bg-light">
             </div>
           </div>
         </div>   
@@ -964,7 +964,7 @@
                         
                         <option value="recpt">Due on receipt</option>
                         {% for p in payments %}
-                        <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
+                        <option value="{{p.Days}}">{{p.Terms}}</option>
                         {% endfor %}
                       </select>                
                       <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newpayment" data-toggle="modal">+</a>   
@@ -1662,7 +1662,7 @@
                         
                         <option value="recpt">Due on receipt</option>
                         {% for p in payments %}
-                        <option value="{{p.Terms}} {{p.id}}">{{p.Terms}}</option>
+                        <option value="{{p.Days}}">{{p.Terms}}</option>
                         {% endfor %}
                       </select>                
                       <a href="#" class="btn btn-outline-secondary py-2 my-1" data-target="#newpayment" data-toggle="modal">+</a>   
@@ -3308,7 +3308,7 @@ function reloadPayment() {
                        
                         
                         <option value="recpt">Due on receipt</option>`);
-      $.each(data, function(key, value) {
+      $.each(data, function(key, value) { debugger
           dropdown.append($('<option></option>').attr('value', key).text(value[0]).val(value[1]));
           drpv.append($('<option></option>').attr('value', key).text(value).val(value));
       });
@@ -3631,7 +3631,7 @@ function reloadAccount() {
 
 
 $(document).ready(function() {
-  $("#item0").change(function() { debugger
+  $("#item0").change(function() { 
     $.ajax({
       url: "{% url 'get_rate' %}",
       type : 'POST',
@@ -4071,16 +4071,30 @@ $(document).on('change','.disc',function(){
       }
   }
 
-  function saveAsDraftDialog() {
-
+  function saveAsDraftDialog() { 
+    let grand_total = $('#grandtotal').val();
+    let paid = $('#amtPaid').val(); 
+    if(parseFloat(paid) > parseFloat(grand_total)){
+       alert("Paid amount should not be greater than grand total.")
+    }
+    else{
       var frm = document.getElementById("forms");
       frm.action = ("{% url 'draft_recurring_bills' %}")
+    }
   }
 
   function saveAndOpenDialog() {
 
+    let grand_total = $('#grandtotal').val();
+    let paid = $('#amtPaid').val(); 
+    if(parseFloat(paid) > parseFloat(grand_total)){
+       alert("Paid amount should not be greater than grand total.")
+    }
+    else{
       var frm = document.getElementById("forms");
       frm.action = ("{% url 'create_recurring_bills' %}")
+    }
+      
   }
 </script>
 

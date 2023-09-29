@@ -510,7 +510,7 @@ urlpatterns = [
     
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     
-
+    #Sangeetha Soman
     path('delete_purchase_bill/<int:id>',views.delete_purchase_bill,name='delete_purchase_bill'),
     path('add_repeat',views.add_repeat,name='add_repeat'),
     path('repeat_dropdown',views.repeat_dropdown,name='repeat_dropdown'),
@@ -518,6 +518,7 @@ urlpatterns = [
     path('draft_recurring_bills',views.draft_recurring_bills,name='draft_recurring_bills'), 
     path('add_rec_comments/<int:id>', views.add_rec_comments, name='add_rec_comments'),
     path('delete_rec_comments/<int:id>/<int:commentid>', views.delete_rec_comments, name='delete_rec_comments'),
+    path('change_draft_recurring_bills/<int:id>/',views.change_draft_recurring_bills,name='change_draft_recurring_bills'), 
     
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

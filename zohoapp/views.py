@@ -4397,8 +4397,9 @@ def create_recurring_bills(request):
         amt_paid =request.POST['amtPaid']
 
         hsn = request.POST.get('HSN0')
-        bill_no =  request.POST.get('recur_bills')
+        bill_no =  request.POST.get('bills')
         sub_total =request.POST['subtotal']
+        adjustment =request.POST['add_round_off']
 
         sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
         cgst=None if request.POST.get('cgst') == "" else  request.POST.get('cgst')
@@ -4424,7 +4425,8 @@ def create_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status,payment_method=payment_method, amt_paid=amt_paid)
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status,payment_method=payment_method, amt_paid=amt_paid,
+                    adjustment = adjustment )
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4495,8 +4497,9 @@ def draft_recurring_bills(request):
 
 
         hsn = request.POST.get('HSN0')
-        bill_no =  request.POST.get('recur_bills')
+        bill_no =  request.POST.get('bills')
         sub_total =request.POST['subtotal']
+        adjustment =request.POST['add_round_off']
 
         sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
         cgst=None if request.POST.get('cgst') == "" else  request.POST.get('cgst')
@@ -4522,7 +4525,7 @@ def draft_recurring_bills(request):
                     source_supply=src_supply,repeat_every = repeat,start_date = start,end_date = end,
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
-                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status, payment_method=payment_method, amt_paid=amt_paid)
+                    grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status, payment_method=payment_method, amt_paid=amt_paid,  adjustment = adjustment )
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4612,6 +4615,7 @@ def edit_recurring_bills(request,id):
         'recur_items' : recur_item,
         'cust':c,
         'vend' : v,
+        'id': id,
         'vend_name' : " ".join(recur_bills.vendor_name.split(" ")[1:]),
         'cust_name' : " ".join(recur_bills.customer_name.split(" ")[2:])
     }
@@ -4642,6 +4646,101 @@ def change_recurring_bills(request,id):
         r_bill.sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
         r_bill.shipping_charge=request.POST['addcharge']
         r_bill.grand_total=request.POST.get('grand_total')
+        r_bill.payment_method =request.POST['paymentmethod']
+        r_bill.amt_paid =request.POST['amtPaid']
+        r_bill.hsn = request.POST.get('HSN0')
+        r_bill.bill_no =  request.POST.get('bills')
+        r_bill.adjustment =request.POST['add_round_off']
+        r_bill.status = 'Save'
+
+        if len(request.FILES) != 0:
+             
+            r_bill.document = request.FILES['file']
+            
+
+        r_bill.save()          
+
+        items = request.POST.getlist("item[]")
+        accounts = request.POST.getlist("account[]")
+        quantity = request.POST.getlist("quantity[]")
+        rate = request.POST.getlist("rate[]")
+
+        if (" ".join(request.POST['srcofsupply'].split(" ")[1:])) == company.state:
+            tax = request.POST.getlist("tax1[]")
+        else:
+            tax = request.POST.getlist("tax2[]")
+
+        discount = 0 if request.POST.getlist("discount[]") == " " else request.POST.getlist("discount[]")
+        amount = request.POST.getlist("amount[]")
+
+        if len(items)==len(accounts)==len(amount) == len(quantity) == len(rate)==len(tax) == len(discount) and items and accounts and quantity and rate and tax and discount and amount:
+                
+            mapped=zip(items,accounts,quantity,rate,tax,discount,amount)
+            mapped=list(mapped)
+
+            
+            count = recurring_bills_items.objects.filter(recur_bills=r_bill.id).count()
+            
+            for ele in mapped:
+
+                if int(len(items))>int(count):
+
+                    pbillss=recurring_bills.objects.get(id=id)
+                    company = company_details.objects.get(user = request.user)
+                    it = AddItem.objects.get(user = request.user, id = ele[0]).Name
+                    it = AddItem.objects.get(user = request.user, id = ele[0]).Name
+                    try:
+                        int(ele[1])
+                        ac = Chart_of_Account.objects.get(user = request.user,id = ele[1]).account_name
+                        
+                    except ValueError:
+                        
+                        ac = ele[1]
+                    
+                    created = recurring_bills_items.objects.get_or_create(item = it,account = ac,quantity=ele[2],rate=ele[3],
+                    tax=ele[4],discount = ele[5],amount=ele[6],recur_bills=r_bill.id,company=company,user = request.user)
+
+
+                else:
+                    
+                    dbs=recurring_bills_items.objects.get(recur_bills =r_bill.id,item = ele[0],account=ele[1])
+                    created = recurring_bills_items.objects.filter(recur_bills =dbs.recur_bills,items = ele[0],account=ele[1]).update(item = ele[0],
+                        account = ele[1],quantity=ele[2],rate=ele[3], tax=ele[4],discount=ele[5],amount= ele[6])
+ 
+
+        return redirect('view_recurring_bills',id)
+    return redirect('recurring_bill')
+
+def change_draft_recurring_bills(request,id):
+            
+    company = company_details.objects.get(user = request.user)
+    # cust = customer.objects.get(customerName=request.POST.get('customer').strip(" "),user = request.user)
+    r_bill=recurring_bills.objects.get(user = request.user,id=id)
+
+    if request.method == 'POST':
+        
+        r_bill.vendor_name = request.POST.get('vendor')
+        r_bill.customer_name= request.POST.get('customer')
+        r_bill.profile_name = request.POST['prof_name']
+        r_bill.source_supply=request.POST['srcofsupply']
+        r_bill.repeat_every=request.POST['repeats']
+        r_bill.start_date=request.POST['start_date']
+        r_bill.end_date=None if request.POST.get('end_date') == "" else  request.POST.get('end_date')
+        r_bill.payment_terms=request.POST['terms']
+        r_bill.note=request.POST['note']
+        r_bill.sub_total=None if request.POST.get('subtotal') == "" else  request.POST.get('subtotal')
+        r_bill.igst=None if request.POST.get('igst') == "" else  request.POST.get('igst')
+        r_bill.cgst=None if request.POST.get('cgst') == "" else  request.POST.get('cgst')
+        r_bill.sgst=None if request.POST.get('sgst') == "" else  request.POST.get('sgst')
+        r_bill.shipping_charge=request.POST['addcharge']
+        r_bill.grand_total=request.POST.get('grand_total')
+        r_bill.payment_method =request.POST['paymentmethod']
+        r_bill.amt_paid =request.POST['amtPaid']
+        r_bill.hsn = request.POST.get('HSN0')
+        r_bill.bill_no =  request.POST.get('bills')
+        r_bill.adjustment =request.POST['add_round_off']
+        r_bill.status = 'Draft'
+        print("ugu")
 
         if len(request.FILES) != 0:
              
