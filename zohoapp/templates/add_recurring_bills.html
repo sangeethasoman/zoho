@@ -88,8 +88,7 @@
     </style>
 
 
-<div class="container-fulid containerprof">
-
+<div class="container-fulid containerprof">  
   <div class="card radius-15 p-3">
     <div class="card-body">
         <div class="card-title">
@@ -306,6 +305,10 @@
                 <i class="fas fa-plus p-2 rounded" style="color: white; background-color: rgb(210, 132, 30); "
                     data-toggle="tooltip" title="Create Customer"></i>
             </a>
+            <input type="hidden" id="cust_state" value="" readonly >
+
+            <input type="hidden" id="company_state" value="{{company.state}}" readonly>
+
         </div>
     </div>
     

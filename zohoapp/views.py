@@ -4205,7 +4205,7 @@ def recurring_bill(request):
         r['vend_name'] = " ".join(vn)
         cn = r['customer_name'].split()[2:]
         r['cust_name'] = " ".join(cn)
-        record = {"start_date":str(r['start_date']),"bill_no":str(r['bill_no']),"profile_name":r['profile_name'],"vend_name":str(r['vend_name']),"cust_name":r['cust_name'],"grand_total":r['grand_total'],"id":r['id']}
+        record = {"start_date":str(r['start_date']),"bill_no":str(r['bill_no']),"profile_name":r['profile_name'],"vend_name":str(r['vend_name']),"cust_name":r['cust_name'],"grand_total":r['grand_total'],"balance":str(r['balance']),"id":r['id']}
         pickup_records.append(record)
 
 
@@ -4347,7 +4347,6 @@ def add_recurring_bills(request):
     sales_type = set(Sales.objects.values_list('Account_type', flat=True))
     purchase_type = set(Purchase.objects.values_list('Account_type', flat=True))
     last_id = recurring_bills.objects.filter(user_id=request.user.id).order_by('-id').values('id').first()
-
     if request.user.is_authenticated:
         last_id = last_id['id']
         next_no = last_id + 1
@@ -4418,7 +4417,7 @@ def create_recurring_bills(request):
         shipping_charge=0 if request.POST['addcharge'] == "" else request.POST['addcharge']
         grand_total=request.POST['grand_total']
         note=request.POST.get('note')
-
+        balance = float(grand_total) - float(amt_paid)
         u = User.objects.get(id = request.user.id)
 
         bills = recurring_bills(vendor_name=vname,profile_name=prof,customer_name = cname,vendor_gst_number=v_gst_no,
@@ -4426,7 +4425,7 @@ def create_recurring_bills(request):
                     payment_terms =pay_term,sub_total=sub_total,sgst=sgst,cgst=cgst,igst=igst,
                     tax_amount=tax1, shipping_charge = shipping_charge,
                     grand_total=grand_total,note=note,company=company,user = u, bill_no = bill_no,status = status,payment_method=payment_method, amt_paid=amt_paid,
-                    adjustment = adjustment )
+                    adjustment = adjustment,balance = balance )
         bills.save()
 
         r_bill = recurring_bills.objects.get(id=bills.id)
@@ -4518,6 +4517,7 @@ def draft_recurring_bills(request):
         shipping_charge=0 if request.POST['addcharge'] == "" else request.POST['addcharge']
         grand_total=request.POST['grand_total']
         note=request.POST.get('note')
+        balance = float(grand_total) - float(amt_paid)
 
         u = User.objects.get(id = request.user.id)
 
@@ -4652,6 +4652,10 @@ def change_recurring_bills(request,id):
         r_bill.bill_no =  request.POST.get('bills')
         r_bill.adjustment =request.POST['add_round_off']
         r_bill.status = 'Save'
+        
+        grand_total = request.POST.get('grand_total')
+        amt_paid = request.POST['amtPaid']
+        r_bill.balance = float(grand_total) - float(amt_paid)
 
         if len(request.FILES) != 0:
              
@@ -4740,7 +4744,9 @@ def change_draft_recurring_bills(request,id):
         r_bill.bill_no =  request.POST.get('bills')
         r_bill.adjustment =request.POST['add_round_off']
         r_bill.status = 'Draft'
-        print("ugu")
+        grand_total = request.POST.get('grand_total')
+        amt_paid = request.POST['amtPaid']
+        r_bill.balance = float(grand_total) - float(amt_paid)
 
         if len(request.FILES) != 0:
              
